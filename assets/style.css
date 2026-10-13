@@ -18,3 +18,10 @@ body:has(.hero-note) main>section:not(.destination){padding:0}
 body:has(.hero-note) main>section>.destination{margin-top:0;margin-bottom:0}
 body:has(.hero-note)>.cta{margin-top:28px}
 @media(max-width:700px){body:has(.hero-note) main{--home-gap:24px}body:has(.hero-note)>.cta{margin-top:24px}}
+/* A single soft entrance and a restrained sway for each homepage color block. */
+.home-motion{transform-origin:50% 60%}
+.home-arriving{animation:home-arrive .8s cubic-bezier(.22,1,.36,1) both}
+@keyframes home-arrive{from{opacity:.35;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(hover:hover) and (pointer:fine){.home-sway{animation:home-sway .65s ease-in-out}.home-motion:focus-within{outline-offset:5px}}
+@keyframes home-sway{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-3px) rotate(-.25deg)}65%{transform:translateY(-2px) rotate(.18deg)}}
+@media(prefers-reduced-motion:reduce){.home-arriving,.home-sway{animation:none!important;transform:none!important;opacity:1!important}}

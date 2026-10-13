@@ -22,3 +22,31 @@ if(file==='content.html'){const x=entries.find(x=>x.id===new URLSearchParams(loc
 const verifyForm=document.querySelector('#verify-form');if(verifyForm){const clone=verifyForm.cloneNode(true);verifyForm.replaceWith(clone);clone.addEventListener('submit',async e=>{e.preventDefault();const number=String(new FormData(clone).get('number')).trim();const result=document.querySelector('#verify-result');if(number==='DEMO-0001'){result.textContent='示範紀錄 DEMO-0001：虛構資料，無認證效力。';return;}try{const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number})});if(!r.ok)throw Error();const d=await r.json();result.textContent=d.message||['證書編號：'+d.number,'課程：'+d.course,'核發日期：'+d.issued,'服務縣市：'+((d.cities||[]).join('、')||'未登錄'),'期限：'+(d.expires||'未登錄'),'狀態：'+({issued:'有效',revoked:'已撤銷',expired:'已到期'}[d.status])].join('；');}catch(e){result.textContent='證書查詢服務尚未接通，請透過 LINE 向協會確認。';}});}
 
 $('#mom-filter')?.addEventListener('change',e=>document.querySelectorAll('[data-mom-group]').forEach(el=>el.hidden=e.target.value!=='all'&&el.dataset.momGroup!==e.target.value));
+// Gentle motion is limited to the homepage and respects reduced-motion preferences.
+if(document.querySelector('.hero-note')){
+ const blocks=[...document.querySelectorAll('main>.hero,main>.destination,main>section>.destination,body>.cta')];
+ const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ const pointer=window.matchMedia('(hover: hover) and (pointer: fine)');
+ blocks.forEach(block=>{
+  block.classList.add('home-motion');
+  block.addEventListener('pointerenter',()=>{
+   if(!motion.matches&&pointer.matches&&!block.classList.contains('home-arriving'))block.classList.add('home-sway');
+  });
+  block.addEventListener('animationend',event=>{
+   if(event.target!==block)return;
+   block.classList.remove('home-sway','home-arriving');
+  });
+ });
+ if('IntersectionObserver' in window&&!motion.matches){
+  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
+   if(entry.isIntersecting){
+    if(!motion.matches)entry.target.classList.add('home-arriving');
+    observer.unobserve(entry.target);
+   }
+  }),{threshold:0.12});
+  blocks.forEach(block=>observer.observe(block));
+  motion.addEventListener('change',()=>{
+   if(motion.matches){observer.disconnect();blocks.forEach(block=>block.classList.remove('home-arriving','home-sway'));}
+  });
+ }
+}
